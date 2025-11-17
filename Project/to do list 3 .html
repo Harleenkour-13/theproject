@@ -1,0 +1,297 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Colorful To‑Do List</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-papnZ..." crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <style>
+    :root{
+      --card-bg: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+      --accent:lavender;
+    }
+
+    body{background: radial-gradient(circle at 10% 10%, #f7f7ff, #fff); min-height:100vh}
+
+    /* Header */
+    .brand{font-weight:700; letter-spacing:0.6px}
+
+    /* Card with image + transform */
+    .hero-card{
+      background: var(--card-bg);
+      border: none;
+      border-radius:1rem;
+      box-shadow: 0 10px 30px rgba(111,66,193,0.12);
+      overflow:hidden;
+      transition: transform .35s cubic-bezier(.2,.9,.2,1), box-shadow .35s;
+      will-change:transform;
+    }
+    .hero-card:hover{transform: translateY(-8px) rotate(-1deg) scale(1.02); box-shadow: 0 18px 40px rgba(111,66,193,0.18)}
+
+    .hero-img{width:100%; aspect-ratio: 16/7; object-fit:cover; transform-origin:center; transition: transform .7s ease;}
+    .hero-card:hover .hero-img{transform: scale(1.08) rotate(-1deg)}
+
+    /* To-do input / list */
+    .todo-input{border-radius:50px; box-shadow: 0 6px 18px rgba(99,102,241,0.08)}
+
+    .list-group-item{display:flex;align-items:center;justify-content:space-between; gap:12px; transition: transform .25s ease, opacity .25s}
+    .list-group-item.enter{animation: slideIn .38s ease both}
+    .list-group-item.completed{opacity:.5; text-decoration:line-through}
+
+    @keyframes slideIn{
+      from{transform: translateY(-10px); opacity:0}
+      to{transform: translateY(0); opacity:1}
+    }
+
+    /* Animated buttons */
+    .btn-animated{transition: transform .18s ease, box-shadow .18s}
+    .btn-animated:active{transform: translateY(2px) scale(.99)}
+
+    /* Floating add button */
+    .fab{
+      position:fixed; right:22px; bottom:22px; z-index:1000;
+      border-radius:999px; padding:12px 16px; box-shadow: 0 8px 20px rgba(0,0,0,.12);
+      transition: transform .2s ease;
+    }
+
+    /* small helpers */
+    .muted-small{font-size:.85rem; opacity:.85}
+
+    /* hidden helper target visual (not required) */
+    .hidden-note{font-size:.82rem; opacity:.8}
+
+    /* Responsive tweaks */
+    @media (min-width:992px){
+      .main-grid{display:grid; grid-template-columns:420px 1fr; gap:28px; align-items:start}
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar bg-white shadow-sm">
+    <div class="container">
+      <a class="navbar-brand brand d-flex align-items-center gap-2" href="#">
+        <span class="badge rounded-pill bg-primary">✔</span>
+        To‑Do
+      </a>
+
+      <div class="d-flex gap-2 align-items-center">
+        <button class="btn btn-outline-primary btn-sm btn-animated" data-bs-toggle="modal" data-bs-target="#loginModal"><i class="fa-solid fa-user"></i> Login</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-5">
+    <div class="main-grid">
+      <!-- Left: hero card + controls -->
+      <div>
+        <div class="card hero-card mb-4">
+          <img class="hero-img" src="https://images.unsplash.com/photo-1523475496153-3d6cc3c12f6a?q=80&w=1600&auto=format&fit=crop" alt="colorful-stationery">
+          <div class="card-body">
+            <h5 class="card-title">Stay focused. Finish tasks.</h5>
+            <p class="card-text muted-small">A playful, animated to‑do list — save locally, toggle completed tasks, and enjoy smooth transforms.</p>
+            <div class="d-flex gap-2 mt-3">
+              <button id="clearAll" class="btn btn-sm btn-outline-danger">Clear all</button>
+              <button id="toggleCompletedView" class="btn btn-sm btn-outline-secondary">Hide completed</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-3 shadow-sm">
+          <div class="mb-2">Add a new task</div>
+          <div class="input-group">
+            <input id="taskInput" type="text" class="form-control todo-input" placeholder="E.g. Finish the project" aria-label="New task">
+            <button id="addBtn" class="btn btn-primary">Add</button>
+          </div>
+          <div class="form-text hidden-note mt-2">Tip: press Enter to add. Double-click a task to edit it.</div>
+        </div>
+      </div>
+
+      <!-- Right: task list -->
+      <div>
+        <div class="card shadow-sm p-3">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="m-0">Your Tasks</h5>
+            <small class="muted-small">Saved to local storage</small>
+          </div>
+
+          <ul id="todoList" class="list-group list-group-flush">
+            <!-- items injected here -->
+          </ul>
+
+          <div class="mt-3 d-flex justify-content-between align-items-center">
+            <div><span id="leftCount">0</span> left</div>
+            <div class="d-flex gap-2">
+              <button id="filterAll" class="btn btn-sm btn-outline-secondary">All</button>
+              <button id="filterActive" class="btn btn-sm btn-outline-secondary">Active</button>
+              <button id="filterCompleted" class="btn btn-sm btn-outline-secondary">Completed</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Add Button -->
+  <button id="fabAdd" class="btn btn-primary fab"><i class="fa-solid fa-plus"></i></button>
+
+  <!-- Login Modal -->
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Login</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="loginForm">
+            <div class="mb-2">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="emailInput" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-control" id="pwdInput" required>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button type="submit" class="btn btn-primary">Sign in</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Simple to-do app with animations, transforms, and a "hidden" toggle for completed items.
+    (function(){
+      const taskInput = document.getElementById('taskInput');
+      const addBtn = document.getElementById('addBtn');
+      const todoList = document.getElementById('todoList');
+      const leftCount = document.getElementById('leftCount');
+      const clearAll = document.getElementById('clearAll');
+      const toggleCompletedView = document.getElementById('toggleCompletedView');
+      const fabAdd = document.getElementById('fabAdd');
+      const filters = {all: 'all', active: 'active', completed: 'completed'};
+      let currentFilter = filters.all;
+      let hideCompleted = false; // hidden property usage
+
+      // load from localStorage
+      let tasks = JSON.parse(localStorage.getItem('todo_tasks_v1') || '[]');
+
+      function save(){ localStorage.setItem('todo_tasks_v1', JSON.stringify(tasks)); }
+
+      function render(){
+        todoList.innerHTML='';
+        const filtered = tasks.filter(t=>{
+          if(currentFilter===filters.active) return !t.done;
+          if(currentFilter===filters.completed) return t.done;
+          return true;
+        });
+
+        filtered.forEach((t, idx)=>{
+          const li = document.createElement('li');
+          li.className = 'list-group-item';
+          if(t.done) li.classList.add('completed');
+          li.innerHTML = `
+            <div class="d-flex align-items-center gap-2" style="flex:1">
+              <input type="checkbox" class="form-check-input" ${t.done? 'checked':''} style="transform:scale(1.15)">
+              <div class="task-text" style="flex:1">${escapeHtml(t.text)}</div>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+              <button class="btn btn-sm btn-outline-danger btn-delete" title="Delete"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          `;
+
+          // apply animation class
+          li.classList.add('enter');
+
+          // hide via `hidden` attribute if completed & hideCompleted true
+          if(t.done && hideCompleted) li.hidden = true;
+
+          // events
+          const checkbox = li.querySelector('input[type=checkbox]');
+          checkbox.addEventListener('change', ()=>{
+            t.done = checkbox.checked; save(); render();
+          });
+
+          li.querySelector('.btn-delete').addEventListener('click', ()=>{
+            tasks.splice(tasks.indexOf(t),1); save(); render();
+          });
+
+          // double click to edit
+          const textDiv = li.querySelector('.task-text');
+          textDiv.addEventListener('dblclick', ()=>{
+            const input = document.createElement('input');
+            input.value = t.text; input.className='form-control form-control-sm';
+            textDiv.replaceWith(input); input.focus();
+            input.addEventListener('blur', ()=>{ t.text = input.value || t.text; save(); render(); });
+            input.addEventListener('keydown', (e)=>{ if(e.key==='Enter') input.blur(); });
+          });
+
+          todoList.appendChild(li);
+        });
+
+        leftCount.textContent = tasks.filter(t=>!t.done).length;
+      }
+
+      function addTask(text){
+        const trimmed = (text||'').trim(); if(!trimmed) return;
+        tasks.unshift({text: trimmed, done:false, id: Date.now()});
+        save(); render();
+        taskInput.value='';
+        taskInput.focus();
+      }
+
+      addBtn.addEventListener('click', ()=> addTask(taskInput.value));
+      fabAdd.addEventListener('click', ()=> addTask(taskInput.value || 'New Task'));
+      taskInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') addTask(taskInput.value); });
+
+      clearAll.addEventListener('click', ()=>{
+        if(!confirm('Clear all tasks?')) return; tasks=[]; save(); render();
+      });
+
+      toggleCompletedView.addEventListener('click', ()=>{
+        hideCompleted = !hideCompleted;
+        toggleCompletedView.textContent = hideCompleted ? 'Show completed' : 'Hide completed';
+        // the spec asked for hidden property - we use element.hidden
+        document.querySelectorAll('#todoList .list-group-item').forEach(li=>{
+          if(li.classList.contains('completed')) li.hidden = hideCompleted;
+        });
+      });
+
+      // filters
+      document.getElementById('filterAll').addEventListener('click', ()=>{ currentFilter = filters.all; render(); });
+      document.getElementById('filterActive').addEventListener('click', ()=>{ currentFilter = filters.active; render(); });
+      document.getElementById('filterCompleted').addEventListener('click', ()=>{ currentFilter = filters.completed; render(); });
+
+      // simple login modal handler (fake login to demo button animation)
+      const loginForm = document.getElementById('loginForm');
+      loginForm.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const email = document.getElementById('emailInput').value;
+        const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+        modal.hide();
+        // show temporary success toast-like feedback as an alert
+        const el = document.createElement('div');
+        el.className = 'position-fixed top-0 start-50 translate-middle-x mt-3';
+        el.innerHTML = `<div class="alert alert-success shadow-sm">Welcome back, ${escapeHtml(email.split('@')[0]||'friend')}!</div>`;
+        document.body.appendChild(el);
+        setTimeout(()=> el.remove(),1800);
+      });
+
+      // small helper to escape HTML
+      function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+      // initial render
+      render();
+
+      // breathe animation on FAB
+      setInterval(()=>{ fabAdd.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:2500,iterations:1}); },3500);
+
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<html>
+<head>
+    <title>Bootstrap To-Do List</title>
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .todo-container {
+            max-width: 500px;
+            margin: 40px auto;
+            background: wheat;
+            padding: 24px 32px;
+            border-radius: 1rem;
+            box-shadow: 0 0 20px 2px green;
+        }
+        .todo-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid blackw;
+        }
+        .todo-list li:last-child {
+            border-bottom: none;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: lightcoral;
+        }
+    </style>
+</head>
+<body >
+  <div class="todo-container shadow">
+    <h2 class="text-center mb-4">My To-Do List</h2>
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="Add a new task..." >
+        <button class="btn btn-primary" type="button" >Add</button>
+    </div>
+    <ul class="list-group todo-list">
+        <li class="d-flex justify-content-between align-items-center">Read documentation <span class="badge bg-success">Done</span></li>
+        <li class=" d-flex justify-content-between align-items-center">Practice coding</li>
+        <li class=" d-flex justify-content-between align-items-center">Build a new project</li>
+    </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<html>
+    <head>
+        <title>CSS Practice</title>
+        <style type="text/css">
+            #i1
+            {
+                border-style:dotted;
+                border-color:red;
+                border-width:2px;
+            }
+            #BCD
+            {
+                color:blue;
+                border-style:dotted;
+                border-width:2px;
+            }
+            
+            .ABC
+            {
+                background-color:maroon;
+                color:white;
+            }
+            .ABCD{
+                text-align:center;
+                background-color:maroon;
+                color:white;
+            }
+            #i2{
+                border-style:dotted;
+                border-color:blue;
+                border-width:2px;
+            }
+            
+        </style>
+        </head>
+        <body>
+               <table border="2px" rules="all" height="400px"width="400px">
+            <form>
+                  <tr>
+                      <td colspan="2" class="ABCD">Registration Form</td>
+                  </tr>
+        <tr>
+            <td>Name</td>
+            <td> <input id="i1" type="text"/> </td>
+        </tr>
+        <tr>
+            <td>class</td>
+            <td><input id="i2" type="number" min="0"/></td>
+        </tr>
+        <tr>
+            <td>Gender</td>
+            <td>
+               <span border-style:dotted;border:2px solid><input id="BCD" type="radio" name="g1"/>male<input id="BCD" type="radio" name="g1"/></span>female
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" >
+               <center> <input type="button" value="Register"  class="ABC" /></center>
+            </td>
+        </tr>
+    </form>
+</table>
+
+    </body>
+</html>
